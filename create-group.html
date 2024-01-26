@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Study Group</title>
+    <link rel="stylesheet" href="style.css"> 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
+    <script>
+       $(document).ready(function () {
+    // Fetch courses from the server and populate the datalist
+    $.ajax({
+        type: "GET",
+        url: "http://localhost:80/get_course_numbers.php",
+        dataType: "json",
+        success: function (data) {
+            var courseList = $("#courseList");
+            $.each(data, function (index, course) {
+                courseList.append($('<option></option>').attr('value', course));
+            });
+        },
+        error: function () {
+            console.error("Failed to fetch data from the server.");
+        }
+    });
+
+    // Form validation and submission
+    $("form").validate({
+        rules: {
+            email: {
+                required: true,
+                email: true
+            },
+            // Add other validation rules if necessary
+        },
+        messages: {
+            email: {
+                required: "Please enter an email address",
+                email: "Please enter a valid email address"
+            },
+            // Add other messages if necessary
+        },
+        submitHandler: function(form) {
+            // AJAX submission if validation passes
+            $.ajax({
+                type: "POST",
+                url: "http://localhost:80/submit_group_creation.php", // Change to your server-side script
+                data: $(form).serialize(),
+                success: function(response) {
+                    alert("Group created successfully. Check your email for confirmation.");
+                },
+                error: function() {
+                    alert("An error occurred. Please try again later.");
+                }
+            });
+        }
+    });
+});
+
+
+    </script>
+     
+</head>
+<body>
+    <header>
+        <h1>Create a Study Group</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="join-group.html">Join Group</a></li>
+                <li><a href="create-group.html">Create Group</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <form method="post" action="submit_group_creation.php">
+            <div class="email">
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email">
+            </div>
+            <div class="form-group">
+                <label for="courseSearch">Search and Select a Course:</label>
+                <input type="text" id="courseSearch" name="courseSearch" list="courseList" placeholder="Type to search...">
+                <datalist id="courseList">
+                    <!-- Options will be dynamically added here -->
+                </datalist>
+            </div>
+
+            <div class="form-group">
+                <label>Booking a Room:</label>
+                <div class="study-links">
+                    <a href="https://spaces.northeastern.edu/" target="_blank">Northeastern Spaces</a>
+                    <a href="https://library.northeastern.edu/ideas/rooms-spaces/" target="_blank">Northeastern Library Rooms</a>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="time">Set a Time:</label>
+                <input type="datetime-local" id="time" name="time">
+            </div>
+
+            <div class="form-group">
+                <label for="details">Details:</label>
+                <textarea id="details" name="details" placeholder="Study topics, group size, focus areas"></textarea>
+            </div>
+
+            <div class="form-group">
+                <button type="submit">Create Group</button>
+            </div>
+        </form>
+    </main>
+</body>
+</html>
